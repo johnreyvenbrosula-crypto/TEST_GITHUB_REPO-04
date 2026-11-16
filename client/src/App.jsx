@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-const API = "/api";
+const API = "import.meta.env.VITE_API_URL";
 const fallbackGames = [
   { id: "g1", title: "Cyber Strike", genre: "FPS", description: "Fast-paced tactical arena combat.", isFeatured: true, imageUrl: "" },
   { id: "g2", title: "Mythic Realms", genre: "RPG", description: "Explore a vast fantasy world and build your legend.", isFeatured: true, imageUrl: "" },
