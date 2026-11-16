@@ -20,7 +20,9 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
-app.use("/api/players", playerRoutes);\napp.use("/api/scores", scoreRoutes);
+app.use("/api/players", playerRoutes);
+app.use("/api/scores", scoreRoutes);
+
 
 app.use((err, _req, res, _next) => {
   if (err instanceof ZodError) return res.status(400).json({ error: "Invalid input", details: err.issues });
