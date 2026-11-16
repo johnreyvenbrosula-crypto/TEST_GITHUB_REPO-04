@@ -7,7 +7,8 @@ import { ZodError } from "zod";
 import authRoutes from "./routes/auth.js";
 import gameRoutes from "./routes/games.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
-import playerRoutes from "./routes/players.js";\nimport scoreRoutes from "./routes/scores.js";
+import playerRoutes from "./routes/players.js";
+import scoreRoutes from "./routes/scores.js";
 
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is required");
 const app = express();
