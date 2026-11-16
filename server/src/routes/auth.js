@@ -7,9 +7,9 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 const registerSchema = z.object({
-  username: z.string().trim().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
-  email: z.string().trim().email().max(160),
-  password: z.string().min(8).max(72)
+  username: z.string().trim().min(3, "Username must be 3-20 characters").max(20).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+  email: z.string().trim().email("Please enter a valid email").max(160),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72)
 });
 
 function tokenFor(user) {
@@ -27,8 +27,14 @@ router.post("/register", async (req, res, next) => {
     const user = await prisma.user.create({ data: { ...data, passwordHash } });
     res.status(201).json({ token: tokenFor(user), user: publicUser(user) });
   } catch (e) {
-    if (e.code === "P2002") return res.status(409).json({ error: "Email or username already exists" });
-    next(e);
+    if (e instanceof z.ZodError) {
+      return res.status(400).json({ error: e.errors[0]?.message || "Invalid registration details" });
+    }
+    if (e.code === "P2002") {
+      return res.status(409).json({ error: "Email or username already exists" });
+    }
+    console.error("Register error:", e);
+    return res.status(500).json({ error: e.message || "Internal server error" });
   }
 });
 
@@ -40,7 +46,12 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json({ error: "Email or password is incorrect" });
     }
     res.json({ token: tokenFor(user), user: publicUser(user) });
-  } catch (e) { next(e); }
+  } catch (e) {
+    if (e instanceof z.ZodError) {
+      return res.status(400).json({ error: "Please enter a valid email and password" });
+    }
+    next(e);
+  }
 });
 
 router.get("/me", requireAuth, async (req, res, next) => {
@@ -55,3 +66,4 @@ router.get("/me", requireAuth, async (req, res, next) => {
 });
 
 export default router;
+      
