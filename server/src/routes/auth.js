@@ -22,19 +22,21 @@ function publicUser(user) {
 
 router.post("/register", async (req, res, next) => {
   try {
-    const data = registerSchema.parse(req.body);
-    const passwordHash = await bcrypt.hash(data.password, 12);
-    const user = await prisma.user.create({ data: { ...data, passwordHash } });
+    const { username, email, password } = registerSchema.parse(req.body);
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { username, email, passwordHash }
+    });
     res.status(201).json({ token: tokenFor(user), user: publicUser(user) });
   } catch (e) {
     if (e instanceof z.ZodError) {
-      return res.status(400).json({ error: e.errors[0]?.message || "Invalid registration details" });
+      return res.status(400).json({ error: e.errors?.[0]?.message || "Invalid registration details" });
     }
     if (e.code === "P2002") {
       return res.status(409).json({ error: "Email or username already exists" });
     }
     console.error("Register error:", e);
-    return res.status(500).json({ error: e.message || "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -66,4 +68,4 @@ router.get("/me", requireAuth, async (req, res, next) => {
 });
 
 export default router;
-      
+    
